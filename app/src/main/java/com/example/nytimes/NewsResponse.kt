@@ -6,6 +6,5 @@ data class NewsResponse(
 
 data class NewsArticle(
     val title: String,
-    val abstract: String,
-    val url: String
+    val published_date: String,
 )

@@ -1,47 +1,36 @@
 package com.example.nytimes
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var newsAdapter: NewsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        // Set up the Toolbar
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "NYT"
 
-        fetchLatestNews()
-    }
+        // List of sections
+        val sections = listOf("viewed", "emailed", "shared")
+        val sectionsListView: ListView = findViewById(R.id.sections_list)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, sections)
+        sectionsListView.adapter = adapter
 
-    private fun fetchLatestNews() {
-        val call = RetrofitInstance.newsApi.getLatestNews("ZGc5uGXPTZ3noAA5ntzAjL7ZOfqBZCYP")
-        call.enqueue(object : Callback<NewsResponse> {
-            override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
-                if (response.isSuccessful) {
-                    val newsResponse = response.body()
-                    if (newsResponse != null) {
-                        newsAdapter = NewsAdapter(newsResponse.results)
-                        recyclerView.adapter = newsAdapter
-                    }
-                } else {
-                    Toast.makeText(this@MainActivity, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
-                }
+        // Set up item click listener
+        sectionsListView.setOnItemClickListener { _, _, position, _ ->
+            val sectionName = sections[position]
+            val intent = Intent(this, ViewNewsActivity::class.java).apply {
+                putExtra("section", sectionName)
             }
-
-            override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Failed to fetch news: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+            startActivity(intent)
+        }
     }
 }
