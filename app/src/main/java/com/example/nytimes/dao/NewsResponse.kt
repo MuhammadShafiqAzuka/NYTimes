@@ -1,4 +1,4 @@
-package com.example.nytimes
+package com.example.nytimes.dao
 
 data class NewsResponse(
     val results: List<NewsArticle>

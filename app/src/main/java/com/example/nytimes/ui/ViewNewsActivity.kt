@@ -1,13 +1,16 @@
-package com.example.nytimes
+package com.example.nytimes.ui
 
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nytimes.dao.NewsArticle
+import com.example.nytimes.dao.NewsResponse
+import com.example.nytimes.R
+import com.example.nytimes.service.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

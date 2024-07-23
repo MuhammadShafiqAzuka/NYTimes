@@ -1,5 +1,6 @@
-package com.example.nytimes
+package com.example.nytimes.service
 
+import com.example.nytimes.dao.NewsResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

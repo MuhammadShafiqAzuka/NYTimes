@@ -1,4 +1,4 @@
-package com.example.nytimes
+package com.example.nytimes.service
 
 import android.util.Log
 import okhttp3.OkHttpClient

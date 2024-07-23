@@ -1,10 +1,12 @@
-package com.example.nytimes
+package com.example.nytimes.ui
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nytimes.dao.NewsArticle
+import com.example.nytimes.R
 import java.text.SimpleDateFormat
 import java.util.*
 
