@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.example.nytimes.ui.SearchActivity
 import com.example.nytimes.ui.ViewNewsActivity
 
 class MainActivity : AppCompatActivity() {
@@ -19,8 +20,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.title = "NYT"
 
-        // List of sections
-        val sections = listOf("viewed", "emailed", "shared")
+        // List of sections with search option at the top
+        val sections = listOf("Search", "viewed", "emailed", "shared")
         val sectionsListView: ListView = findViewById(R.id.sections_list)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, sections)
         sectionsListView.adapter = adapter
@@ -28,10 +29,17 @@ class MainActivity : AppCompatActivity() {
         // Set up item click listener
         sectionsListView.setOnItemClickListener { _, _, position, _ ->
             val sectionName = sections[position]
-            val intent = Intent(this, ViewNewsActivity::class.java).apply {
-                putExtra("section", sectionName)
+            if (sectionName == "Search") {
+                // Handle search option click
+                // You can start a new Activity for search or show a dialog here
+                startActivity(Intent(this, SearchActivity::class.java))
+            } else {
+                // Handle news section click
+                val intent = Intent(this, ViewNewsActivity::class.java).apply {
+                    putExtra("section", sectionName)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
         }
     }
 }

@@ -4,39 +4,52 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nytimes.dao.NewsArticle
-import com.example.nytimes.dao.NewsResponse
 import com.example.nytimes.R
-import com.example.nytimes.service.RetrofitInstance
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.nytimes.dao.NewsArticle
+import com.example.nytimes.viewmodel.ListViewModel
 
 class ViewNewsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var noArticlesTextView: TextView
     private val articles = mutableListOf<NewsArticle>()
     private var isLoading = false
     private val apiKey = "ZGc5uGXPTZ3noAA5ntzAjL7ZOfqBZCYP"
+    private val viewModel: ListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_news)
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
+        noArticlesTextView = findViewById(R.id.noArticlesTextView)
         newsAdapter = NewsAdapter(articles)
         recyclerView.adapter = newsAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Get the section name from the Intent
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Articles"
+
+        // Get the section or query from the Intent
         val section = intent.getStringExtra("section")
-        if (section != null) {
+        val query = intent.getStringExtra("query")
+
+        if (!query.isNullOrEmpty()) {
+            Log.d("ViewNewsActivity", "Search query: $query")
+            performSearch(query)
+        } else if (!section.isNullOrEmpty()) {
             Log.d("ViewNewsActivity", "News section: $section")
-            getMostPopularNews(section)
+            fetchNews(section)
+        } else {
+            Log.e("ViewNewsActivity", "No section or query provided")
         }
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -48,42 +61,47 @@ class ViewNewsActivity : AppCompatActivity() {
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
                 if (!isLoading && lastVisibleItem + 5 >= totalItemCount) {
-                    if (section != null) {
-                        getMostPopularNews(section)
+                    if (!section.isNullOrEmpty()) {
+                        fetchNews(section)
                     }
                 }
             }
         })
+
+        viewModel.articleResults.observe(this) { response ->
+            progressBar.visibility = View.GONE
+            response?.results?.let {
+                articles.clear()
+                articles.addAll(it.sortedByDescending { article -> article.published_date })
+                newsAdapter.notifyDataSetChanged()
+                noArticlesTextView.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+            } ?: run {
+                Log.e("ViewNewsActivity", "No articles found")
+                noArticlesTextView.visibility = View.VISIBLE
+            }
+            isLoading = false
+        }
+
+        viewModel.errorMessage.observe(this) { error ->
+            progressBar.visibility = View.GONE
+            isLoading = false
+            Log.e("ViewNewsActivity", error)
+        }
     }
 
-    private fun getMostPopularNews(section: String) {
-        Log.d("ViewNewsActivity", "News section: $section")
+    private fun fetchNews(section: String) {
+        Log.d("ViewNewsActivity", "Fetching news for section: $section")
         isLoading = true
         progressBar.visibility = View.VISIBLE
-
-        val call = RetrofitInstance.newsApi.getMostPopularNews(section, apiKey)
-        call.enqueue(object : Callback<NewsResponse> {
-            override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
-                progressBar.visibility = View.GONE
-                if (response.isSuccessful) {
-                    val newsResponse = response.body()
-                    if (newsResponse != null && newsResponse.results.isNotEmpty()) {
-                        newsAdapter.addArticles(newsResponse.results)
-                    } else {
-                        Log.e("Retrofit", "Error: ${response.code()} ${response.message()}")
-                    }
-                } else {
-                    Log.e("Retrofit", "Error: ${response.code()} ${response.message()}")
-                }
-                isLoading = false
-            }
-
-            override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                isLoading = false
-                Log.e("Retrofit", "Error: ${t.message}")
-            }
-        })
+        noArticlesTextView.visibility = View.GONE
+        viewModel.popularArticles(section, apiKey)
     }
 
+    private fun performSearch(query: String) {
+        Log.d("ViewNewsActivity", "Performing search for query: $query")
+        isLoading = true
+        progressBar.visibility = View.VISIBLE
+        noArticlesTextView.visibility = View.GONE
+        viewModel.searchArticles(query, apiKey)
+    }
 }

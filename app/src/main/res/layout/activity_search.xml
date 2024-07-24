@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.SearchActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -14,11 +14,26 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <ListView
-        android:id="@+id/sections_list"
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:layout_below="@id/toolbar"
-        android:padding="16dp" />
+        android:queryHint="Search for news..." />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/search_buttonn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_view"
+        android:layout_centerInParent="true"
+        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="67dp"
+        android:layout_marginEnd="174dp"
+        android:layout_marginBottom="8dp"
+        android:text="Search" />
 
 </RelativeLayout>
