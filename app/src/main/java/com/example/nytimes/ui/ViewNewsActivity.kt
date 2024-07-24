@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nytimes.R
 import com.example.nytimes.dao.NewsArticle
 import com.example.nytimes.dao.SearchArticle
+import com.example.nytimes.ui.adapter.NewsAdapter
+import com.example.nytimes.ui.adapter.SearchAdapter
 import com.example.nytimes.viewmodel.ListViewModel
 
 class ViewNewsActivity : AppCompatActivity() {
