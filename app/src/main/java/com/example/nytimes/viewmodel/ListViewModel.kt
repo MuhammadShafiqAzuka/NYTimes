@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nytimes.dao.NYTSearchResponse
 import com.example.nytimes.dao.NewsResponse
+import com.example.nytimes.dao.SearchArticle
 import com.example.nytimes.service.NewsApiService
 import com.example.nytimes.service.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,9 @@ class ListViewModel : ViewModel() {
 
     private val _articleResults = MutableLiveData<NewsResponse>()
     val articleResults: LiveData<NewsResponse> get() = _articleResults
+
+    private val _searchArticleResults = MutableLiveData<List<SearchArticle>>()
+    val searchArticleResults: LiveData<List<SearchArticle>> get() = _searchArticleResults
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
@@ -46,16 +51,16 @@ class ListViewModel : ViewModel() {
     fun searchArticles(query: String, apiKey: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                apiService.searchArticles(query, apiKey).enqueue(object : Callback<NewsResponse> {
-                    override fun onResponse(call: Call<NewsResponse>, response: Response<NewsResponse>) {
+                apiService.searchArticles(0, query, "newest", apiKey).enqueue(object : Callback<NYTSearchResponse> {
+                    override fun onResponse(call: Call<NYTSearchResponse>, response: Response<NYTSearchResponse>) {
                         if (response.isSuccessful) {
-                            _articleResults.postValue(response.body())
+                            _searchArticleResults.postValue(response.body()?.response?.docs)
                         } else {
                             _errorMessage.postValue("Error: ${response.code()} ${response.message()}")
                         }
                     }
 
-                    override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
+                    override fun onFailure(call: Call<NYTSearchResponse>, t: Throwable) {
                         _errorMessage.postValue("Failure: ${t.message}")
                     }
                 })
