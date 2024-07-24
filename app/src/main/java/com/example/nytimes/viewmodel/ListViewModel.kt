@@ -17,7 +17,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ListViewModel : ViewModel() {
-    private val apiService: NewsApiService = RetrofitInstance.newsApi
+    var apiService: NewsApiService = RetrofitInstance.newsApi
 
     private val _articleResults = MutableLiveData<NewsResponse>()
     val articleResults: LiveData<NewsResponse> get() = _articleResults

@@ -18,7 +18,6 @@ import com.example.nytimes.dao.SearchArticle
 import com.example.nytimes.ui.adapter.NewsAdapter
 import com.example.nytimes.ui.adapter.SearchAdapter
 import com.example.nytimes.viewmodel.ListViewModel
-import com.google.android.material.snackbar.Snackbar
 
 class ViewNewsActivity : AppCompatActivity() {
 
