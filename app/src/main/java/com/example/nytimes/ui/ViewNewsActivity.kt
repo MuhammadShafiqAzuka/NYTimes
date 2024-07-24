@@ -18,8 +18,10 @@ import com.example.nytimes.dao.SearchArticle
 import com.example.nytimes.ui.adapter.NewsAdapter
 import com.example.nytimes.ui.adapter.SearchAdapter
 import com.example.nytimes.viewmodel.ListViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class ViewNewsActivity : AppCompatActivity() {
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var searchAdapter: SearchAdapter
@@ -31,13 +33,13 @@ class ViewNewsActivity : AppCompatActivity() {
     private val apiKey = "ZGc5uGXPTZ3noAA5ntzAjL7ZOfqBZCYP"
     private val viewModel: ListViewModel by viewModels()
 
-    // Handler for debounce
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_news)
+
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
         noArticlesTextView = findViewById(R.id.noArticlesTextView)
@@ -48,11 +50,11 @@ class ViewNewsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.title = "Articles"
 
-        // Get the section or query from the Intent
         val section = intent.getStringExtra("section")
         val query = intent.getStringExtra("query")
 
         recyclerView.layoutManager = LinearLayoutManager(this)
+
         setupObservers()
 
         if (!query.isNullOrEmpty()) {
@@ -98,7 +100,6 @@ class ViewNewsActivity : AppCompatActivity() {
         viewModel.errorMessage.observe(this) { error ->
             progressBar.visibility = View.GONE
             isLoading = false
-            Log.e("ViewNewsActivity", error)
         }
     }
 
@@ -139,10 +140,8 @@ class ViewNewsActivity : AppCompatActivity() {
     }
 
     private fun performSearch(query: String) {
-        // Remove any pending runnables
         searchRunnable?.let { handler.removeCallbacks(it) }
 
-        // Create a new runnable with a delay
         searchRunnable = Runnable {
             Log.d("ViewNewsActivity", "Performing search for query: $query")
             isLoading = true
@@ -151,7 +150,6 @@ class ViewNewsActivity : AppCompatActivity() {
             viewModel.searchArticles(query, apiKey)
         }
 
-        // Post the runnable with a delay (e.g., 300ms)
         handler.postDelayed(searchRunnable!!, 300)
     }
 }

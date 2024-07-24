@@ -2,12 +2,12 @@ package com.example.nytimes
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.nytimes.ui.SearchActivity
 import com.example.nytimes.ui.ViewNewsActivity
+import com.example.nytimes.ui.adapter.SectionAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,30 +16,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Set up the Toolbar
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.title = "NYT"
 
-        // List of sections with search option at the top
+        // List of sections
         val sections = listOf("Search", "viewed", "emailed", "shared")
-        val sectionsListView: ListView = findViewById(R.id.sections_list)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, sections)
-        sectionsListView.adapter = adapter
+        val sectionsRecyclerView: RecyclerView = findViewById(R.id.sections_recycler_view)
 
-        // Set up item click listener
-        sectionsListView.setOnItemClickListener { _, _, position, _ ->
-            val sectionName = sections[position]
+        // Set up RecyclerView
+        sectionsRecyclerView.layoutManager = LinearLayoutManager(this)
+        val adapter = SectionAdapter(this, sections) { sectionName ->
             if (sectionName == "Search") {
-                // Handle search option click
-                // You can start a new Activity for search or show a dialog here
                 startActivity(Intent(this, SearchActivity::class.java))
             } else {
-                // Handle news section click
                 val intent = Intent(this, ViewNewsActivity::class.java).apply {
                     putExtra("section", sectionName)
                 }
                 startActivity(intent)
             }
         }
+        sectionsRecyclerView.adapter = adapter
     }
 }
